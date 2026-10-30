@@ -16,6 +16,9 @@ jobs:
       ADMOB_APP_ID: ${{ secrets.ADMOB_APP_ID }}
       ADMOB_BANNER_ID: ${{ secrets.ADMOB_BANNER_ID }}
       ADMOB_OPEN_ID: ${{ secrets.ADMOB_OPEN_ID }}
+      KS_PW: ${{ secrets.KEYSTORE_PASSWORD }}
+      KS_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KS_KEY_PW: ${{ secrets.KEY_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,15 +49,19 @@ jobs:
 
       - name: Signierte APK und AAB bauen (identischer Stand)
         if: env.HAS_KEYSTORE == 'true'
-        run: >
-          gradle assembleRelease bundleRelease --no-daemon
-          -PADMOB_APP_ID="$ADMOB_APP_ID"
-          -PADMOB_BANNER_ID="$ADMOB_BANNER_ID"
-          -PADMOB_OPEN_ID="$ADMOB_OPEN_ID"
-          -PKEYSTORE_FILE="$RUNNER_TEMP/release.jks"
-          -PKEYSTORE_PASSWORD="${{ secrets.KEYSTORE_PASSWORD }}"
-          -PKEY_ALIAS="${{ secrets.KEY_ALIAS }}"
-          -PKEY_PASSWORD="${{ secrets.KEY_PASSWORD }}"
+        run: |
+          # Zeilenumbrüche und Leerzeichen am Rand der Secrets entfernen (häufiger Einfüge-Fehler)
+          KS_PW_C="$(printf '%s' "$KS_PW" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          KS_ALIAS_C="$(printf '%s' "$KS_ALIAS" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          KS_KEY_PW_C="$(printf '%s' "$KS_KEY_PW" | tr -d '\r\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+          gradle assembleRelease bundleRelease --no-daemon \
+            -PADMOB_APP_ID="$ADMOB_APP_ID" \
+            -PADMOB_BANNER_ID="$ADMOB_BANNER_ID" \
+            -PADMOB_OPEN_ID="$ADMOB_OPEN_ID" \
+            -PKEYSTORE_FILE="$RUNNER_TEMP/release.jks" \
+            -PKEYSTORE_PASSWORD="$KS_PW_C" \
+            -PKEY_ALIAS="$KS_ALIAS_C" \
+            -PKEY_PASSWORD="$KS_KEY_PW_C"
 
       - name: Release-Dateien umbenennen
         if: env.HAS_KEYSTORE == 'true'
