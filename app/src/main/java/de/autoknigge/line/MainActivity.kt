@@ -330,13 +330,13 @@ class MainActivity : AppCompatActivity() {
             setImageResource(R.drawable.logo_line)
             adjustViewBounds = true
             contentDescription = "Line"
-        }, FrameLayout.LayoutParams(dp(230), WRAP))
+        }, FrameLayout.LayoutParams(dp(250), WRAP))
         val ver = packageManager.getPackageInfo(packageName, 0).versionName ?: ""
         logoBox.addView(
             text(ver, 10f, Color.parseColor("#FFE07A")),
             FrameLayout.LayoutParams(WRAP, WRAP, Gravity.TOP or Gravity.END).apply {
-                topMargin = dp(16)
-                rightMargin = dp(26)
+                topMargin = dp(2)
+                rightMargin = dp(2)
             }
         )
         col.addView(logoBox, LinearLayout.LayoutParams(WRAP, WRAP).apply { gravity = Gravity.CENTER_HORIZONTAL })
